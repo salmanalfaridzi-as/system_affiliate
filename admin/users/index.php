@@ -1,7 +1,13 @@
 <?php
+// File: admin/users/index.php
 session_start();
 require_once '../../config/database.php';
-if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') { header("Location: ../auth/login.php"); exit; }
+
+// PERBAIKAN: user_role
+if (!isset($_SESSION['user_id']) || $_SESSION['user_role'] !== 'admin') { 
+    header("Location: ../auth/login.php"); 
+    exit; 
+}
 $active = 'users';
 
 $users = $pdo->query("SELECT * FROM users ORDER BY created_at DESC")->fetchAll();

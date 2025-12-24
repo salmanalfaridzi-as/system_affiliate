@@ -1,7 +1,13 @@
 <?php
+// File: admin/coupons/index.php
 session_start();
 require_once '../../config/database.php';
-if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') { header("Location: ../auth/login.php"); exit; }
+
+// PERBAIKAN: user_role
+if (!isset($_SESSION['user_id']) || $_SESSION['user_role'] !== 'admin') { 
+    header("Location: ../auth/login.php"); 
+    exit; 
+}
 $active = 'coupons';
 
 // TAMBAH KUPON GLOBAL
@@ -10,11 +16,11 @@ if (isset($_POST['add_coupon'])) {
     $type = $_POST['type'];
     $amount = $_POST['amount'];
     
-    // Insert dengan affiliate_id = NULL (Global)
     $stmt = $pdo->prepare("INSERT INTO coupons (affiliate_id, code, discount_type, discount_amount, status) VALUES (NULL, ?, ?, ?, 'active')");
     try {
         $stmt->execute([$code, $type, $amount]);
-        header("Location: coupons.php"); exit;
+        // PERBAIKAN: Redirect ke index.php
+        header("Location: index.php"); exit;
     } catch(PDOException $e) {
         echo "<script>alert('Kode kupon sudah ada!');</script>";
     }
@@ -23,7 +29,8 @@ if (isset($_POST['add_coupon'])) {
 // HAPUS KUPON
 if (isset($_GET['del'])) {
     $pdo->prepare("DELETE FROM coupons WHERE id = ?")->execute([$_GET['del']]);
-    header("Location: coupons.php"); exit;
+    // PERBAIKAN: Redirect ke index.php
+    header("Location: index.php"); exit;
 }
 
 // Ambil Kupon Global Saja
@@ -50,7 +57,7 @@ require_once '../layout/header.php'; require_once '../layout/navbar.php'; requir
                         <tbody>
                             <?php foreach($coupons as $c): ?>
                             <tr>
-                                <td class="fw-bold"><?= $c['code'] ?></td>
+                                <td class="fw-bold"><?= htmlspecialchars($c['code']) ?></td>
                                 <td><?= $c['discount_type']=='percent' ? floatval($c['discount_amount']).'%' : 'Rp '.number_format($c['discount_amount']) ?></td>
                                 <td><?= $c['usage_count'] ?>x</td>
                                 <td><a href="?del=<?= $c['id'] ?>" class="btn btn-sm btn-danger" onclick="return confirm('Hapus?')"><i class="bi bi-trash"></i></a></td>

@@ -1,7 +1,13 @@
 <?php
+// File: admin/orders/index.php
 session_start();
 require_once '../../config/database.php';
-if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') { header("Location: ../auth/login.php"); exit; }
+
+// PERBAIKAN: user_role
+if (!isset($_SESSION['user_id']) || $_SESSION['user_role'] !== 'admin') { 
+    header("Location: ../auth/login.php"); 
+    exit; 
+}
 $active = 'orders';
 
 // UPDATE STATUS ORDER
@@ -10,9 +16,9 @@ if (isset($_POST['update_status'])) {
     $st = $_POST['status'];
     $pdo->prepare("UPDATE orders SET status = ? WHERE id = ?")->execute([$st, $oid]);
     
-    // TODO: Jika status 'paid', hitung komisi affiliate di sini (opsional, bisa trigger terpisah)
-    
-    header("Location: orders.php"); exit;
+    // PERBAIKAN: Redirect ke index.php
+    header("Location: index.php"); 
+    exit;
 }
 
 // AMBIL SEMUA ORDER
@@ -44,7 +50,7 @@ require_once '../layout/header.php'; require_once '../layout/navbar.php'; requir
                                 <tr>
                                     <td><span class="fw-bold">#<?= $o['invoice_number'] ?></span><br><small><?= substr($o['created_at'],0,10) ?></small></td>
                                     <td><?= htmlspecialchars($o['buyer_name']) ?><br><small><?= $o['buyer_phone'] ?></small></td>
-                                    <td><?= $o['prod_name'] ?></td>
+                                    <td><?= htmlspecialchars($o['prod_name']) ?></td>
                                     <td><?= $o['aff_name'] ? '<span class="badge bg-info text-dark">'.$o['aff_name'].'</span>' : '-' ?></td>
                                     <td class="fw-bold">Rp <?= number_format($o['final_amount'],0,',','.') ?></td>
                                     <td>

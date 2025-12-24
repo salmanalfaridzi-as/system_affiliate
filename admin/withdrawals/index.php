@@ -1,24 +1,29 @@
 <?php
+// File: admin/withdrawals/index.php
 session_start();
 require_once '../../config/database.php';
-if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') { header("Location: ../auth/login.php"); exit; }
+
+// PERBAIKAN: user_role
+if (!isset($_SESSION['user_id']) || $_SESSION['user_role'] !== 'admin') { 
+    header("Location: ../auth/login.php"); 
+    exit; 
+}
 $active = 'withdrawals';
 
 // PROSES PAYOUT
 if (isset($_POST['process_wd'])) {
     $wid = $_POST['wd_id'];
-    $action = $_POST['action']; // 'paid' or 'rejected'
+    $action = $_POST['action']; // 'approve' or 'reject'
     
-    // Update status withdrawal
     $stmt = $pdo->prepare("UPDATE withdrawals SET status = ? WHERE id = ?");
     $stmt->execute([$action == 'approve' ? 'paid' : 'rejected', $wid]);
     
-    // Jika rejected, kembalikan saldo ke affiliate (Logika tambahan diperlukan jika ada sistem saldo)
-    
-    header("Location: withdrawals.php"); exit;
+    // PERBAIKAN: Redirect ke index.php
+    header("Location: index.php"); 
+    exit;
 }
 
-// Query: Join Withdrawals -> Affiliate Profiles -> Users
+// Query
 $wds = $pdo->query("
     SELECT w.*, u.name, u.email, ap.bank_name, ap.bank_account_number, ap.bank_account_name 
     FROM withdrawals w

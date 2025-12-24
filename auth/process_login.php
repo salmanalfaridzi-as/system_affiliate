@@ -24,6 +24,7 @@ try {
         $_SESSION['user_id'] = $user['id'];
         $_SESSION['user_name'] = $user['name'];
         $_SESSION['user_email'] = $user['email'];
+        $_SESSION['user_role'] = $user['role'];
 
         // --- 2. SET COOKIE (Remember Me) ---
         if (isset($_POST['remember'])) {

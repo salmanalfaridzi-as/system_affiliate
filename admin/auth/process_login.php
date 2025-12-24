@@ -23,14 +23,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         // Set Session
         $_SESSION['user_id'] = $user['id'];
         $_SESSION['user_name'] = $user['name'];
-        $_SESSION['role'] = $user['role'];
+        $_SESSION['user_email'] = $user['email'];
+        $_SESSION['user_role'] = $user['role'];
 
         // Redirect Sesuai Role
         if ($user['role'] === 'admin') {
-            header("Location: ../admin/dashboard.php");
+            header("Location: ../dashboard/");
         } else {
-            // Default ke dashboard affiliate
-            header("Location: ../dashboard/index.php");
+            header("Location: login.php?error=Akun Bukan Admin.");
         }
         exit;
         

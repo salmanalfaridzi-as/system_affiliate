@@ -37,10 +37,9 @@ class DokuHandler {
         $requestTimestamp = gmdate("Y-m-d\TH:i:s\Z");
         
         // URL Setup
-        $defDomain = 'http://localhost/my_tahfidz_affiliator_sejoli';
-        $notifyUrl = $customUrls['callback_url'] ?? $defDomain . '/payment/notification.php'; 
-        $successUrl = $customUrls['success_url']  ?? $defDomain . '/product/mytahfidz/thankyou.php?inv=INV-' . $orderId; 
-        $failedUrl  = $customUrls['failed_url']   ?? $defDomain . '/product/mytahfidz/thankyou.php?inv=INV-' . $orderId;
+        $notifyUrl = $customUrls['callback_url'] ?? BASE_URL . '/payment/notification.php'; 
+        $successUrl = $customUrls['success_url']  ?? BASE_URL . '/product/mytahfidz/thankyou.php?inv=INV-' . $orderId; 
+        $failedUrl  = $customUrls['failed_url']   ?? BASE_URL . '/product/mytahfidz/thankyou.php?inv=INV-' . $orderId;
 
         $data = [
             'order' => [

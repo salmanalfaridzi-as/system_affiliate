@@ -59,12 +59,10 @@ class IpaymuHandler
     // 1. Create Payment (Redirect)
     public function createPayment($orderId, $amount, $buyerName, $buyerEmail, $buyerPhone, $customUrls = [])
     {
-        // URL Default
-        $defDomain = 'https://34f8835048d6.ngrok-free.app/my_tahfidz_affiliator_sejoli'; // Ganti sesuai domain kamu
 
-        $returnUrl = $customUrls['success_url'] ?? $defDomain . '/product/mytahfidz/thankyou.php?inv=INV-' . $orderId;
-        $cancelUrl = $customUrls['failed_url']  ?? $defDomain . '/product/mytahfidz/thankyou.php?inv=INV-' . $orderId . '&status=failed';
-        $notifyUrl = $customUrls['callback_url'] ?? $defDomain . '/payment/notification.php';
+        $returnUrl = $customUrls['success_url'] ?? BASE_URL . '/product/mytahfidz/thankyou.php?inv=INV-' . $orderId;
+        $cancelUrl = $customUrls['failed_url']  ?? BASE_URL . '/product/mytahfidz/thankyou.php?inv=INV-' . $orderId . '&status=failed';
+        $notifyUrl = $customUrls['callback_url'] ?? BASE_URL . '/payment/notification.php';
 
         $body = [
             'product'    => ['Produk Digital'], // Nama produk (array)
@@ -78,7 +76,7 @@ class IpaymuHandler
             'buyerName'  => $buyerName,
             'buyerEmail' => $buyerEmail,
             'buyerPhone' => $buyerPhone,
-            'paymentMethod' => 'qris' // Default method (optional), kalau dihapus user milih sendiri di halaman iPaymu
+            // 'paymentMethod' => 'qris' // Default method (optional), kalau dihapus user milih sendiri di halaman iPaymu
         ];
 
         // Hit API

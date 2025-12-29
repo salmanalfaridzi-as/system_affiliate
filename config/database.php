@@ -1,5 +1,12 @@
 <?php
 // config/database.php
+
+// --- KONFIGURASI URL UTAMA (BASE URL) ---
+define('BASE_URL', 'https://34f8835048d6.ngrok-free.app/my_tahfidz_affiliator_sejoli');
+
+// Nanti saat Deploy (Hosting), ganti jadi:
+// define('BASE_URL', 'https://domainkamu.com');
+
 $host = 'localhost';
 $db   = 'mytahfidz-optimasi';
 $user = 'root';

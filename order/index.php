@@ -1,7 +1,12 @@
 <?php
+// File: order/index.php
 session_start();
 require_once '../config/database.php';
-if (!isset($_SESSION['user_id'])) { header("Location: ../auth/login.php"); exit; }
+
+if (!isset($_SESSION['user_id'])) {
+    header("Location: ../auth/login.php");
+    exit;
+}
 
 $active = 'order';
 require_once '../layout/header.php';
@@ -30,6 +35,7 @@ $myOrders = $stmt->fetchAll();
     <div class="app-content-header">
         <div class="container-fluid"><h3 class="mb-0">Riwayat Belanja Saya</h3></div>
     </div>
+    
     <div class="app-content">
         <div class="container-fluid">
             <div class="card shadow-sm border-0">
@@ -55,25 +61,40 @@ $myOrders = $stmt->fetchAll();
                                             <small class="text-muted"><?= date('d M Y', strtotime($o['created_at'])) ?></small>
                                         </td>
                                         <td>
-                                            <?= htmlspecialchars($o['product_name']) ?> 
+                                            <?= htmlspecialchars($o['product_name']) ?>
                                             <span class="badge bg-secondary ms-1">x<?= $o['qty'] ?></span>
                                         </td>
                                         <td class="fw-bold">Rp <?= number_format($o['final_amount'] > 0 ? $o['final_amount'] : $o['total_amount'], 0, ',', '.') ?></td>
                                         <td class="text-center">
                                             <?php 
                                             $badges = [
-                                                'pending' => 'bg-warning', 'paid' => 'bg-success', 
-                                                'cancelled' => 'bg-danger', 'refunded' => 'bg-secondary'
+                                                'pending'   => 'bg-warning text-dark',
+                                                'paid'      => 'bg-success',
+                                                'cancelled' => 'bg-danger',
+                                                'failed'    => 'bg-danger',
+                                                'refunded'  => 'bg-secondary'
                                             ];
                                             $labels = [
-                                                'pending' => 'Menunggu', 'paid' => 'Lunas', 
-                                                'cancelled' => 'Batal', 'refunded' => 'Refund'
+                                                'pending'   => 'Menunggu',
+                                                'paid'      => 'Lunas',
+                                                'cancelled' => 'Batal',
+                                                'failed'    => 'Gagal',
+                                                'refunded'  => 'Refund'
                                             ];
                                             ?>
                                             <span class="badge <?= $badges[$o['status']] ?? 'bg-secondary' ?>">
                                                 <?= $labels[$o['status']] ?? ucfirst($o['status']) ?>
                                             </span>
-                                        </td>
+
+                                            <?php if($o['status'] == 'pending'): ?>
+                                                <div class="mt-2">
+                                                    <a href="<?= $o['payment_url'] ?>" 
+                                                       class="btn btn-sm btn-outline-dark py-0 px-2 small" style="font-size: 0.75rem;">
+                                                        <i class="bi bi-credit-card me-1"></i> Bayar
+                                                    </a>
+                                                </div>
+                                            <?php endif; ?>
+                                            </td>
                                     </tr>
                                     <?php endforeach; ?>
                                 <?php endif; ?>
@@ -85,4 +106,5 @@ $myOrders = $stmt->fetchAll();
         </div>
     </div>
 </main>
+
 <?php require_once '../layout/footer.php'; ?>

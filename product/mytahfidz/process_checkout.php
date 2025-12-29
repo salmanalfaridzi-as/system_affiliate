@@ -1,17 +1,18 @@
 <?php
 // File: product/mytahfidz/process_checkout.php
 session_start();
+require_once '../../config/database.php';
 
 // ==============================================================================
 // 1. KONFIGURASI URL
 // ==============================================================================
 // URL API Backend (Tempat logika payment & database berada)
 // Pastikan path-nya benar mengarah ke file create.php yang baru kita buat
-$api_endpoint = "http://localhost/my_tahfidz_affiliator_sejoli/api/payment/create.php";
+$api_endpoint = BASE_URL . "/api/payment/create.php";
 
 // URL Halaman Thank You (Frontend)
 // Ini dikirim ke API supaya iPaymu nanti tau harus balik kemana setelah bayar
-$frontend_return_url = "http://localhost/my_tahfidz_affiliator_sejoli/product/mytahfidz/thankyou.php";
+$frontend_return_url = BASE_URL . "/product/mytahfidz/payment_finish.php";
 
 
 // ==============================================================================

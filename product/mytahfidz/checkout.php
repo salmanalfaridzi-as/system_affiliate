@@ -202,7 +202,19 @@ if (isset($_SESSION['user_id'])) {
                                 <button class="btn btn-outline-secondary" type="button" onclick="applyCoupon()">Gunakan</button> 
                             </div> 
                         </div> 
-
+<div class="form-check mb-3 small text-muted">
+    <input class="form-check-input" type="checkbox" id="agreeTerms" required checked>
+    <label class="form-check-label" for="agreeTerms">
+        Saya menyetujui 
+        <a href="../../info/terms.php" target="_blank" class="text-decoration-none fw-bold">Syarat & Ketentuan</a> 
+        dan 
+        <a href="../../info/refund.php" target="_blank" class="text-decoration-none fw-bold">Kebijakan Refund</a>.
+        <br>
+        <span class="text-secondary" style="font-size: 0.9em;">
+            Butuh bantuan? Baca <a href="../../info/faq.php" target="_blank" class="text-decoration-underline">FAQ</a> kami.
+        </span>
+    </label>
+</div>
                         <button type="submit" class="btn btn-primary w-100 btn-lg fw-bold"> Lanjut Pembayaran <i class="bi bi-arrow-right-circle ms-1"></i> </button> 
                     </form> 
                 </div> 

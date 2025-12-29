@@ -43,7 +43,7 @@ try {
     if ($order['status'] == 'paid') {
         // Optional: Update SID kalau kosong
         $pdo->prepare("UPDATE orders SET ipaymu_sid = ? WHERE id = ? AND ipaymu_sid IS NULL")->execute([$sid, $order['id']]);
-        
+
         echo json_encode(['status' => 'success', 'message' => 'Already Paid']);
         exit;
     }
@@ -52,7 +52,7 @@ try {
     $statusLower = strtolower($status);
 
     if ($statusLower == 'berhasil') {
-        
+
         $pdo->beginTransaction();
 
         try {
@@ -63,16 +63,25 @@ try {
 
             // B. HITUNG KOMISI AFFILIATE
             if (!empty($order['affiliate_id'])) {
-                
+
                 // Cek Self-Referral (Beli pakai link sendiri)
+                $stmtBuyer = $pdo->prepare("SELECT id FROM users WHERE email = ?");
+                // 1. Ambil User ID si Pembeli
                 $stmtBuyer = $pdo->prepare("SELECT id FROM users WHERE email = ?");
                 $stmtBuyer->execute([$order['buyer_email']]);
                 $buyer = $stmtBuyer->fetch();
 
-                if ($buyer && $buyer['id'] == $order['affiliate_id']) {
-                    // Skip Komisi (Self Referral)
+                // 2. Ambil User ID si Affiliate (Karena affiliate_id di order itu ID Profile, bukan ID User)
+                $stmtAffUser = $pdo->prepare("SELECT user_id FROM affiliate_profiles WHERE id = ?");
+                $stmtAffUser->execute([$order['affiliate_id']]);
+                $affiliateProfile = $stmtAffUser->fetch();
+
+                // 3. Bandingkan: Apakah User ID Pembeli == User ID Affiliate?
+                if ($buyer && $affiliateProfile && $buyer['id'] == $affiliateProfile['user_id']) {
+                    // INI SELF REFERRAL (Beli sendiri pakai link sendiri) -> SKIP KOMISI
+                    // Tidak melakukan apa-apa
                 } else {
-                    // Ambil Data Produk
+                    // PROSES KOMISI SEPERTI BIASA
                     $stmtProd = $pdo->prepare("SELECT price, commission_amount, commission_type FROM products WHERE id = ?");
                     $stmtProd->execute([$order['product_id']]);
                     $product = $stmtProd->fetch();
@@ -89,18 +98,15 @@ try {
                         }
 
                         if ($commAmount > 0) {
-                            // Cek Double Entry
                             $stmtCek = $pdo->prepare("SELECT id FROM affiliate_commissions WHERE order_id = ?");
                             $stmtCek->execute([$order['id']]);
 
                             if ($stmtCek->rowCount() == 0) {
-                                // Insert History Komisi
                                 $pdo->prepare("INSERT INTO affiliate_commissions (affiliate_id, order_id, commission_amount, status, created_at) VALUES (?, ?, ?, 'pending', NOW())")
                                     ->execute([$order['affiliate_id'], $order['id'], $commAmount]);
 
-                                // Update Saldo Affiliate
                                 $pdo->prepare("UPDATE affiliate_profiles SET total_sales = total_sales + 1, total_commission = total_commission + ?, available_balance = available_balance + ? WHERE user_id = ?")
-                                    ->execute([$commAmount, $commAmount, $order['affiliate_id']]);
+                                    ->execute([$commAmount, $commAmount, $affiliateProfile['user_id']]); // Pakai user_id dari affiliate
                             }
                         }
                     }
@@ -109,43 +115,35 @@ try {
 
             $pdo->commit();
             echo json_encode(['status' => 'success', 'message' => 'Payment processed']);
-
         } catch (Exception $e) {
             $pdo->rollBack();
             http_response_code(500);
             echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
         }
-
     } elseif ($statusLower == 'gagal') {
-        
+
         // EKSEKUSI PENYIMPANAN SID ADA DI SINI JUGA (BAGIAN GAGAL)
         // Kita update status jadi 'failed', tapi tetap simpan trx_id dan sid biar ada jejaknya
         $stmtFail = $pdo->prepare("UPDATE orders SET status = 'failed', trx_id = ?, ipaymu_sid = ? WHERE id = ?");
         $stmtFail->execute([$trx_id, $sid, $order['id']]);
-        
+
         echo json_encode(['status' => 'failed']);
-        
-    
     } elseif ($statusLower == 'expired') {
-        
+
         // EKSEKUSI PENYIMPANAN SID ADA DI SINI JUGA (BAGIAN GAGAL)
         // Kita update status jadi 'failed', tapi tetap simpan trx_id dan sid biar ada jejaknya
         $stmtFail = $pdo->prepare("UPDATE orders SET status = 'expired', trx_id = ?, ipaymu_sid = ? WHERE id = ?");
         $stmtFail->execute([$trx_id, $sid, $order['id']]);
-        
+
         echo json_encode(['status' => 'failed']);
-        
-    
-    }else {
+    } else {
         // Status Pending (Menunggu Bayar)
         // Opsional: Update SID juga pas pending kalau mau
         $pdo->prepare("UPDATE orders SET trx_id = ?, ipaymu_sid = ? WHERE id = ?")->execute([$trx_id, $sid, $order['id']]);
 
         echo json_encode(['status' => 'pending']);
     }
-
 } catch (Exception $e) {
     http_response_code(500);
     echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
 }
-?>

@@ -43,7 +43,7 @@ $source       = $input['source'] ?? 'direct';
 $id_source    = $input['id_source'] ?? '';   
 
 // Domain Asal (Untuk redirect balik setelah bayar)
-$return_url_base = $input['return_url_base'] ?? 'http://localhost/my_tahfidz_affiliator_sejoli/product/mytahfidz/thankyou.php';
+$return_url_base = $input['return_url_base'] ?? BASE_URL . '/product/mytahfidz/payment_finish.php';
 
 try {
     $pdo->beginTransaction();
@@ -132,8 +132,8 @@ try {
         buyer_name, buyer_phone, buyer_email, 
         total_amount, discount_amount, final_amount, coupon_id, 
         status, created_at,
-        shipping_address, courier, resi_number, qty, source, id_source
-    ) VALUES (?, '', ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending', NOW(), '', '', '', 1, ?, ?)";
+        shipping_address, courier, resi_number, qty, source, id_source, payment_url
+    ) VALUES (?, '', ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending', NOW(), '', '', '', 1, ?, ?, NULL)";
 
     // Eksekusi (affiliate_id sekarang dijamin NULL atau Valid ID)
     $pdo->prepare($sqlOrder)->execute([
@@ -142,6 +142,9 @@ try {
         $prod['price'], $discount, $final_amount, $coupon_id,
         $source, $id_source
     ]);
+
+    $orderDbId = $pdo->lastInsertId();
+
     
     $pdo->commit();
 
@@ -153,7 +156,7 @@ try {
     // GANTI domain ini dengan domain backend API Anda
     $backendUrl = "https://34f8835048d6.ngrok-free.app/my_tahfidz_affiliator_sejoli"; 
     
-    $successUrl = $return_url_base . '?inv=' . $invoice;
+    $successUrl = $return_url_base . '?inv=' . $invoice . '&status=success';
     $failedUrl  = $return_url_base . '?inv=' . $invoice . '&status=failed';
     $notifyUrl  = $backendUrl . '/api/payment/webhook.php'; 
 
@@ -164,9 +167,15 @@ try {
     ]);
 
     if (isset($response['Success']) && $response['Success'] && isset($response['Data']['Url'])) {
+        $paymentUrl = $response['Data']['Url'];
+
+        // --- UPDATE DATABASE: SIMPAN LINK PEMBAYARAN ---
+        $stmtUpd = $pdo->prepare("UPDATE orders SET payment_url = ? WHERE id = ?");
+        $stmtUpd->execute([$paymentUrl, $orderDbId]);
+
         echo json_encode([
             'status' => 'success',
-            'payment_url' => $response['Data']['Url'],
+            'payment_url' => $paymentUrl,
             'invoice' => $invoice,
             'user_data' => [ 
                 'id' => $user_id,

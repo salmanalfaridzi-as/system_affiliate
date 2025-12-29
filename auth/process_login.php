@@ -28,7 +28,7 @@ try {
 
         // --- 2. SET COOKIE (Remember Me) ---
         if (isset($_POST['remember'])) {
-            $salt = "MyTahfidzSuperSecretKey"; 
+            $salt = "AffiliateSuperSecretKey"; 
             $token = hash('sha256', $user['id'] . $salt);
             // Cookie Path WAJIB '/' agar bisa dibaca global
             setcookie('remember_user', $user['id'], time() + (86400 * 30), "/");

@@ -1,5 +1,5 @@
 <footer class="app-footer small text-center text-sm-start"> 
-            <strong>Copyright &copy; <?= date('Y') ?> <a href="#" class="text-decoration-none">MyTahfidz</a>.</strong> All rights reserved.
+            <strong>Copyright &copy; <?= date('Y') ?> <a href="#" class="text-decoration-none">Affiliate</a>.</strong> All rights reserved.
         </footer> 
     </div> 
     <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>

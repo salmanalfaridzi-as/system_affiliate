@@ -1,37 +1,40 @@
 <?php
 // File: libraries/ipaymu_handler.php
 
-class IpaymuHandler {
+class IpaymuHandler
+{
     private $apiKey;
     private $virtualAccount;
     private $isProduction;
 
-    public function __construct() {
+    public function __construct()
+    {
         // --- KONFIGURASI IPAYMU ---
         // Silakan ganti dengan API Key & VA dari Dashboard iPaymu
-        $this->apiKey = 'YOUR_API_KEY_HERE'; 
-        $this->virtualAccount = 'YOUR_VA_HERE';
+        $this->apiKey = 'SANDBOXC298D943-DB4B-4B95-A8D2-E584828FE525';
+        $this->virtualAccount = '0000005742264748';
         $this->isProduction = false; // Ubah ke true saat live
     }
 
     // Fungsi Request API ke iPaymu
-    private function callApi($endpoint, $method, $body = []) {
+    private function callApi($endpoint, $method, $body = [])
+    {
         $baseUrl = $this->isProduction ? 'https://my.ipaymu.com' : 'https://sandbox.ipaymu.com';
         $url = $baseUrl . $endpoint;
 
-        $jsonBody = json_encode($body, JSON_UNESCAPED_SLASHES);
-        
-        // Generate Signature iPaymu
-        $stringToSign = strtoupper($method) . ':' . $this->virtualAccount . ':' . $jsonBody . ':' . $this->apiKey;
-        $signature = hash_hmac('sha256', $stringToSign, $this->apiKey);
-        $timestamp = date('YmdHis');
+        $jsonBody     = json_encode($body, JSON_UNESCAPED_SLASHES);
+        $requestBody  = strtolower(hash('sha256', $jsonBody));
+        $stringToSign = strtoupper($method) . ':' . $this->virtualAccount . ':' . $requestBody . ':' . $this->apiKey;
+        $signature    = hash_hmac('sha256', $stringToSign, $this->apiKey);
+        $timestamp    = Date('YmdHis');
 
-        $headers = [
+        $headers = array(
+            'Accept: application/json',
             'Content-Type: application/json',
             'va: ' . $this->virtualAccount,
             'signature: ' . $signature,
             'timestamp: ' . $timestamp
-        ];
+        );
 
         $ch = curl_init($url);
         curl_setopt($ch, CURLOPT_HEADER, false);
@@ -41,7 +44,7 @@ class IpaymuHandler {
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
         curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
-        
+
         $response = curl_exec($ch);
         $err = curl_error($ch);
         curl_close($ch);
@@ -54,10 +57,11 @@ class IpaymuHandler {
     }
 
     // 1. Create Payment (Redirect)
-    public function createPayment($orderId, $amount, $buyerName, $buyerEmail, $buyerPhone, $customUrls = []) {
+    public function createPayment($orderId, $amount, $buyerName, $buyerEmail, $buyerPhone, $customUrls = [])
+    {
         // URL Default
-        $defDomain = 'http://localhost/my_tahfidz_affiliator_sejoli'; // Ganti sesuai domain kamu
-        
+        $defDomain = 'https://34f8835048d6.ngrok-free.app/my_tahfidz_affiliator_sejoli'; // Ganti sesuai domain kamu
+
         $returnUrl = $customUrls['success_url'] ?? $defDomain . '/product/mytahfidz/thankyou.php?inv=INV-' . $orderId;
         $cancelUrl = $customUrls['failed_url']  ?? $defDomain . '/product/mytahfidz/thankyou.php?inv=INV-' . $orderId . '&status=failed';
         $notifyUrl = $customUrls['callback_url'] ?? $defDomain . '/payment/notification.php';
@@ -70,7 +74,7 @@ class IpaymuHandler {
             'returnUrl'  => $returnUrl,
             'cancelUrl'  => $cancelUrl,
             'notifyUrl'  => $notifyUrl,
-            'referenceId'=> 'INV-' . $orderId, // ID Invoice kita
+            'referenceId' => 'INV-' . $orderId, // ID Invoice kita
             'buyerName'  => $buyerName,
             'buyerEmail' => $buyerEmail,
             'buyerPhone' => $buyerPhone,
@@ -82,9 +86,9 @@ class IpaymuHandler {
     }
 
     // 2. Check Status Transaksi
-    public function checkStatus($transactionId) {
+    public function checkStatus($transactionId)
+    {
         $body = ['transactionId' => $transactionId];
         return $this->callApi('/api/v2/transaction', 'POST', $body);
     }
 }
-?>

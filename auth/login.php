@@ -15,7 +15,7 @@ if (isset($_SESSION['user_id'])) {
     
 //     $cookie_id = $_COOKIE['remember_user'];
 //     $cookie_token = $_COOKIE['remember_token'];
-//     $salt = "MyTahfidzSuperSecretKey"; // Harus sama dengan process_login.php
+//     $salt = "AffiliateSuperSecretKey"; // Harus sama dengan process_login.php
     
 //     // Cek kecocokan token
 //     if (hash('sha256', $cookie_id . $salt) === $cookie_token) {
@@ -55,8 +55,9 @@ if (isset($_SESSION['user_id'])) {
     
     <div class="login-box">
         <div class="card card-outline card-primary shadow">
-            <div class="card-header text-center">
-                <a href="../index.php" class="h1"><b>Sejoli</b> Clone</a>
+             <div class="card-header text-center">
+                <h1 class="mb-0"><b>Affiliate System</b></h1>
+                <small>Masuk Sebagai Affiliate</small>
             </div>
             
             <div class="card-body">

@@ -14,7 +14,7 @@ if (empty($invoice)) {
 
 try {
     // 1. Cek Data Order
-    $stmt = $pdo->prepare("SELECT id, status, doku_request_id, affiliate_id, product_id, final_amount, invoice_number, buyer_email, buyer_name, buyer_phone FROM orders WHERE invoice_number = ?");
+    $stmt = $pdo->prepare("SELECT id, status, trx_id, affiliate_id, product_id, final_amount, invoice_number, buyer_email, buyer_name, buyer_phone FROM orders WHERE invoice_number = ?");
     $stmt->execute([$invoice]);
     $order = $stmt->fetch();
 
@@ -31,7 +31,7 @@ try {
     // 2. Tanya ke DOKU
     $doku = new DokuHandler();
     $unique_id = str_replace('INV-', '', $invoice);
-    $storedRequestId = $order['doku_request_id'] ?? null;
+    $storedRequestId = $order['trx_id'] ?? null;
 
     $response = $doku->checkStatus($unique_id, $storedRequestId);
 

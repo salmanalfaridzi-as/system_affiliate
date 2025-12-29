@@ -39,7 +39,7 @@ if (!$order) die("Invoice tidak valid.");
                             <i class="bi bi-check-circle-fill display-1"></i>
                             <h2 class="mt-3 fw-bold">Pembayaran Berhasil!</h2>
                             <p>Terima kasih, pesanan Anda telah kami terima.</p>
-                            <a href="../../member/dashboard.php" class="btn btn-primary w-100 mt-3">Masuk Dashboard</a>
+                            <a href="../../dashboard/" class="btn btn-primary w-100 mt-3">Masuk Dashboard</a>
                         </div>
                     <?php else: ?>
                         <div class="mb-4">
@@ -75,7 +75,7 @@ async function verifikasiPembayaran() {
 
     // 1. Ubah tombol jadi loading
     btn.disabled = true;
-    btn.innerHTML = '<i class="bi bi-arrow-repeat loading-spin me-2"></i> Mengecek ke DOKU...';
+    btn.innerHTML = '<i class="bi bi-arrow-repeat loading-spin me-2"></i> Mengecek ke System...';
     alertBox.classList.add('d-none');
 
     try {

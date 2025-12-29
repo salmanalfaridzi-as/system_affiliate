@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login | MyTahfidz Affiliate</title>
+    <title>Login | Affiliate</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/source-sans-3@5.0.12/index.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <link rel="stylesheet" href="../../css/adminlte/adminlte.min.css">
@@ -11,7 +11,7 @@
 <body class="login-page bg-body-secondary">
     <div class="login-box">
         <div class="login-logo">
-            <a href="#"><b>MyTahfidz</b> Affiliate</a>
+            <a href="#">Affiliate</a>
         </div>
         <div class="card shadow-sm border-0 rounded-3">
             <div class="card-body login-card-body p-4">
